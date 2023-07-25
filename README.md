@@ -7,4 +7,9 @@
 ## 主程序
 [N_m3u8DL-RE](https://github.com/nilaoda/N_m3u8DL-RE)
 
+## 运行截图
+<img width="650" src="img/1.png">
+
+<img width="650" src="img/2.png">
+
 
