@@ -1,10 +1,10 @@
-::2023.07.24
+::2023.07.25
 ::记得保存为ASNI编码
 
 @echo off & setlocal enabledelayedexpansion
 
 ::开始
-Title N_m3u8DL-RE：跨平台的DASH/HLS/MSS下载工具 by nilaoda
+Title N_m3u8DL-RE：跨平台的live_record/HLS/MSS下载工具 by nilaoda
 
 cd /d %~dp0
 
@@ -108,7 +108,7 @@ goto :eof
 
 :setting_live_record_params
 ::设置直播录制参数
-set dash_params=-sv best -sa best --live-real-time-merge:true --live-keep-segments:false --live-fix-vtt-by-audio:true --live-record-limit %record_limit% --no-log:true -mt:true -M format=mp4:bin_path="%ffmpeg%"
+set live_record_params=--no-log:true -mt:true --mp4-real-time-decryption:true -sv best -sa best --live-pipe-mux:true --live-keep-segments:false --live-fix-vtt-by-audio:true --live-record-limit %record_limit% -M format=mp4:bin_path="%ffmpeg%"
 
 goto :eof
 
@@ -128,10 +128,16 @@ goto :eof
 ::--custom-range <RANGE>                   仅下载部分分片. 输入 "--morehelp custom-range" 以查看详细信息
 ::--ffmpeg-binary-path <PATH>              ffmpeg可执行程序全路径, 例如 C:\Tools\ffmpeg.exe
 ::--ui-language <en-US|zh-CN|zh-TW>        设置UI语言
-::--live-real-time-merge                   录制直播时实时合并 [default: False]
 ::--live-keep-segments                     录制直播并开启实时合并时依然保留分片 [default: True]
+::--live-pipe-mux                          录制直播并开启实时合并时通过管道+ffmpeg实时混流到TS文件 [default: False]
 ::--live-fix-vtt-by-audio                  通过读取音频文件的起始时间修正VTT字幕 [default: False]
 ::--live-record-limit <HH:mm:ss>           录制直播时的录制时长限制
+::-sv, --select-video <OPTIONS>            通过正则表达式选择符合要求的视频流. 输入 "--morehelp select-video" 以查看详细信息
+::-sa, --select-audio <OPTIONS>            通过正则表达式选择符合要求的音频流. 输入 "--morehelp select-audio" 以查看详细信息
+::-ss, --select-subtitle <OPTIONS>         通过正则表达式选择符合要求的字幕流. 输入 "--morehelp select-subtitle" 以查看详细信息
+::-dv, --drop-video <OPTIONS>              通过正则表达式去除符合要求的视频流.
+::-da, --drop-audio <OPTIONS>              通过正则表达式去除符合要求的音频流.
+::-ds, --drop-subtitle <OPTIONS>           通过正则表达式去除符合要求的字幕流.
 
 ::---------------输出部分---------------
 :path_print
@@ -144,13 +150,13 @@ echo.
 goto :eof
 
 :m3u8_download_print
-echo.下载命令：N_m3u8DL-RE %m3u8_params% "%link%" --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name %filename%
+echo.下载命令：N_m3u8DL-RE %m3u8_params% "%link%" --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 ::空一行
 echo.
 goto :eof
 
 :live_record_print
-echo.下载命令：N_m3u8DL-RE %dash_params% "%link%" --tmp-dir %TempDir% --save-dir %SaveDir% --save-name %filename%
+echo.下载命令：N_m3u8DL-RE %live_record_params% "%link%" --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 ::空一行
 echo.
 goto :eof
@@ -159,12 +165,12 @@ goto :eof
 ::下载命令
 :m3u8_downloading
 ::将filename放到最后，防止文件名带有某些符号导致路径识別失败
-N_m3u8DL-RE %m3u8_params% "%link%" --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name %filename%
+N_m3u8DL-RE %m3u8_params% "%link%" --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 goto :eof
 
 :live_recording
 ::将filename放到最后，防止文件名带有某些符号导致路径识別失败
-N_m3u8DL-RE %dash_params% "%link%" --tmp-dir %TempDir% --save-dir %SaveDir% --save-name %filename%
+N_m3u8DL-RE %live_record_params% "%link%" --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 goto :eof
 
 ::下载完成暂停一段时间关闭窗口，防止运行报错时直接关闭窗口。
