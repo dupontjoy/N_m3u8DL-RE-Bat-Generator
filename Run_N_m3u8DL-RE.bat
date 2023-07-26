@@ -1,4 +1,4 @@
-::2023.07.25
+::2023.07.26
 ::记得保存为ASNI编码
 
 @echo off & setlocal enabledelayedexpansion
@@ -35,7 +35,6 @@ cls
 call :common_input
 call :setting_path
 call :setting_m3u8_params
-call :path_print
 call :m3u8_download_print
 call :m3u8_downloading
 call :when_done
@@ -46,7 +45,6 @@ call :common_input
 call :live_record_input
 call :setting_path
 call :setting_live_record_params
-call :path_print
 call :live_record_print
 call :live_recording
 call :when_done
@@ -78,11 +76,12 @@ goto :eof
 :live_record_input
 :set_record_limit
 set "record_limit="
-set /p "record_limit=请输入录制时长限制:(格式：HH:mm:ss) "
+set /p "record_limit=请输入录制时长限制(格式：HH:mm:ss, 可为空): "
 if "!record_limit!"=="" (
-    echo 错误：输入不能为空！
-    goto set_record_limit
-)
+    set live_record_limit=
+) else (
+    set live_record_limit=--live-record-limit %record_limit%
+    )
 
 goto :eof
 
@@ -108,7 +107,7 @@ goto :eof
 
 :setting_live_record_params
 ::设置直播录制参数
-set live_record_params=--no-log:true -mt:true --mp4-real-time-decryption:true -sv best -sa best --live-pipe-mux:true --live-keep-segments:false --live-fix-vtt-by-audio:true --live-record-limit %record_limit% -M format=mp4:bin_path="%ffmpeg%"
+set live_record_params=--no-log:true -mt:true --mp4-real-time-decryption:true --ui-language:zh-CN -sv best -sa best --live-pipe-mux:true --live-keep-segments:false --live-fix-vtt-by-audio:true %live_record_limit% -M format=mp4:bin_path="%ffmpeg%"
 
 goto :eof
 
@@ -140,23 +139,14 @@ goto :eof
 ::-ds, --drop-subtitle <OPTIONS>           通过正则表达式去除符合要求的字幕流.
 
 ::---------------输出部分---------------
-:path_print
-cls
-echo.临时目录：%TempDir%
-echo.输出目录：%SaveDir%
-echo.ffmpeg.exe路径：%ffmpeg%
-::空一行
-echo.
-goto :eof
-
 :m3u8_download_print
-echo.下载命令：N_m3u8DL-RE %m3u8_params% "%link%" --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+echo.下载命令：N_m3u8DL-RE "%link%" %m3u8_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 ::空一行
 echo.
 goto :eof
 
 :live_record_print
-echo.下载命令：N_m3u8DL-RE %live_record_params% "%link%" --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+echo.下载命令：N_m3u8DL-RE "%link%" %live_record_params% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 ::空一行
 echo.
 goto :eof
@@ -164,13 +154,12 @@ goto :eof
 
 ::下载命令
 :m3u8_downloading
-::将filename放到最后，防止文件名带有某些符号导致路径识別失败
-N_m3u8DL-RE %m3u8_params% "%link%" --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
+N_m3u8DL-RE "%link%" %m3u8_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 goto :eof
 
 :live_recording
-::将filename放到最后，防止文件名带有某些符号导致路径识別失败
-N_m3u8DL-RE %live_record_params% "%link%" --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+N_m3u8DL-RE "%link%" %live_record_params% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 goto :eof
 
 ::下载完成暂停一段时间关闭窗口，防止运行报错时直接关闭窗口。
