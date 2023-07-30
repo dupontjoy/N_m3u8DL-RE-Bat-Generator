@@ -12,4 +12,6 @@
 
 <img width="650" src="img/2.png">
 
+## 广告过滤关键词
+[m3u8_downloader/ignore_url_list.txt](https://github.com/leavjenn/leavjenn.github.io/blob/master/m3u8_downloader/ignore_url_list.txt)
 
