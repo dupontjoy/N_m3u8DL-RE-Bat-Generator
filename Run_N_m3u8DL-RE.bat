@@ -112,7 +112,7 @@ goto :eof
 
 :setting_ad_keyword
 ::设置广告关键词
-set user_ad_keyword="o\d{3,4}.ts$|/ads/|hesads.akamaized.net|doppiocdn.org|doppiocdn.com|stream.highwebmedia.com|redirector.gvt1.com/api|dmxleo.dailymotion.com/cdn/manifest/video/|"
+set user_ad_keyword="o\d{3,4}.ts$|/ads/|hesads.akamaized.net|doppiocdn.org|doppiocdn.com|stream.highwebmedia.com|redirector.gvt1.com/api|dmxleo.dailymotion.com/cdn/manifest/video/"
 goto :eof
 
 :setting_m3u8_params
