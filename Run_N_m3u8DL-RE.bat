@@ -1,4 +1,4 @@
-::2023.07.26
+::2023.07.30
 ::记得保存为ASNI编码
 
 @echo off & setlocal enabledelayedexpansion
@@ -12,11 +12,11 @@ cd /d %~dp0
 :menu
 cls
 ECHO.
-ECHO  下载选项
+ECHO  选项
 echo.                   
 ECHO. **********************************************************
 echo.
-ECHO  1、m3u8视频
+ECHO  1、下载m3u8视频
 echo.
 ECHO  2、直播录制
 echo.
@@ -34,6 +34,7 @@ if %a%==2 goto live_record
 cls
 call :common_input
 call :setting_path
+call :setting_ad_keyword
 call :setting_m3u8_params
 call :m3u8_download_print
 call :m3u8_downloading
@@ -64,7 +65,7 @@ if "!link!"=="" (
 
 :set_filename 
 set "filename="
-set /p "filename=请输入保存文件名: "
+set /p "filename=请输入保存文件名（不能包含"\/:*?"<>|"任何之一）: "
 if "!filename!"=="" (
     echo 错误：输入不能为空！
     goto set_filename
@@ -82,8 +83,19 @@ if "!record_limit!"=="" (
 ) else (
     set live_record_limit=--live-record-limit %record_limit%
     )
-
 goto :eof
+
+:custom_range_input
+:set_custom_range
+set "custom_range="
+set /p "custom_range=请输入分片范围(格式：0-10或10-或-99或05:00-20:00, 可为空): "
+if "!custom_range!"=="" (
+    set custom_range=
+) else (
+    set custom_range=--custom-range %custom_range%
+    )
+goto :eof
+
 
 ::---------------设置部分---------------
 :setting_path
@@ -98,17 +110,19 @@ set ffmpeg=..\..\..\MedLexo\bin\ffmpeg.exe
 
 goto :eof
 
+:setting_ad_keyword
+::设置广告关键词
+set user_ad_keyword="o\d{3,4}.ts$|/ads/|hesads.akamaized.net|doppiocdn.org|doppiocdn.com|stream.highwebmedia.com|redirector.gvt1.com/api|dmxleo.dailymotion.com/cdn/manifest/video/|"
+goto :eof
 
 :setting_m3u8_params
 ::设置m3u8下载参数
-set m3u8_params=--download-retry-count:9 --auto-select:true --check-segments-count:false --no-log:true --append-url-params:true -mt:true --mp4-real-time-decryption:true --ui-language:zh-CN
-
+set m3u8_params=--download-retry-count:9 --auto-select:true --check-segments-count:false --no-log:true --append-url-params:true --ad-keyword %user_ad_keyword% -mt:true --mp4-real-time-decryption:true --ui-language:zh-CN
 goto :eof
 
 :setting_live_record_params
 ::设置直播录制参数
-set live_record_params=--no-log:true -mt:true --mp4-real-time-decryption:true --ui-language:zh-CN -sv best -sa best --live-pipe-mux:true --live-keep-segments:false --live-fix-vtt-by-audio:true %live_record_limit% -M format=mp4:bin_path="%ffmpeg%"
-
+set live_record_params=--no-log:true --append-url-params:true -mt:true --mp4-real-time-decryption:true --ui-language:zh-CN -sv best -sa best --live-pipe-mux:true --live-keep-segments:false --live-fix-vtt-by-audio:true %live_record_limit% -M format=mp4:bin_path="%ffmpeg%"
 goto :eof
 
 ::---------------参数说明---------------
@@ -140,12 +154,14 @@ goto :eof
 
 ::---------------输出部分---------------
 :m3u8_download_print
+cls
 echo.下载命令：N_m3u8DL-RE "%link%" %m3u8_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 ::空一行
 echo.
 goto :eof
 
 :live_record_print
+cls
 echo.下载命令：N_m3u8DL-RE "%link%" %live_record_params% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 ::空一行
 echo.
@@ -164,7 +180,7 @@ goto :eof
 
 ::下载完成暂停一段时间关闭窗口，防止运行报错时直接关闭窗口。
 :when_done
-timeout /t 5 /nobreak
+timeout /t 10 /nobreak
 exit
 goto :eof
 
