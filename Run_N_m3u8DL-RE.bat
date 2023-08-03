@@ -4,7 +4,7 @@
 @echo off & setlocal enabledelayedexpansion
 
 ::开始
-Title N_m3u8DL-RE：跨平台的live_record/HLS/MSS下载工具 by nilaoda
+Title N_m3u8DL-RE：跨平台的DASH/HLS/MSS下载工具 by nilaoda
 
 cd /d %~dp0
 
@@ -22,14 +22,14 @@ ECHO  2、直播录制
 echo.
 ECHO. **********************************************************
 echo.
-set /p a=请输入操作序号并回车（1、2）：
+CHOICE /C 12 /N >NUL 2>NUL
 cls
 
-if %a%==1 goto m3u8_download
-if %a%==2 goto live_record
+IF "%ERRORLEVEL%"=="1" (goto m3u8_download)
+IF "%ERRORLEVEL%"=="2" (goto live_record)
 
 
-::开始下载
+::功能选项
 :m3u8_download
 cls
 call :common_input
@@ -112,7 +112,7 @@ goto :eof
 
 :setting_ad_keyword
 ::设置广告关键词
-set user_ad_keyword="o\d{3,4}.ts$|/ads/|hesads.akamaized.net|doppiocdn.org|doppiocdn.com|stream.highwebmedia.com|redirector.gvt1.com/api|dmxleo.dailymotion.com/cdn/manifest/video/"
+set user_ad_keyword="o\d{3,4}.ts|/ads/|hesads.akamaized.net"
 goto :eof
 
 :setting_m3u8_params
