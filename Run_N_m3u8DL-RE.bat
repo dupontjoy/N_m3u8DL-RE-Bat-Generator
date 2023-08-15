@@ -19,7 +19,7 @@ ECHO  选项
 echo.                   
 ECHO. *******************************************************************************************
 echo.
-ECHO  1、下载m3u8视频
+ECHO  1、下载视频
 echo.
 ECHO  2、直播录制
 echo.
@@ -28,19 +28,19 @@ echo.
 CHOICE /C 12 /N >NUL 2>NUL
 cls
 
-IF "%ERRORLEVEL%"=="1" (goto m3u8_download)
+IF "%ERRORLEVEL%"=="1" (goto video_download)
 IF "%ERRORLEVEL%"=="2" (goto live_record)
 
 
 ::功能选项
-:m3u8_download
+:video_download
 cls
 call :common_input
 call :setting_path
 call :setting_ad_keyword
-call :setting_m3u8_params
-call :m3u8_download_print
-call :m3u8_downloading
+call :setting_video_params
+call :video_download_print
+call :video_downloading
 call :when_done
 goto :eof
 
@@ -103,7 +103,7 @@ goto :eof
 ::---------------设置部分---------------
 :setting_path
 ::设置临时文件存储目录
-set TempDir=N_m3u8DL_Temp
+set TempDir=cache
 
 ::设置输出目录
 set SaveDir=D:\Download\
@@ -118,13 +118,13 @@ goto :eof
 set user_ad_keyword="o\d{3,4}.ts|/ads?/|hesads.akamaized.net"
 goto :eof
 
-:setting_m3u8_params
-::设置m3u8下载参数
-set m3u8_params=--download-retry-count:99 --auto-select:true --check-segments-count:false --no-log:true --ad-keyword %user_ad_keyword% --ui-language:zh-CN
+:setting_video_params
+::设置video下载参数
+set video_params=--download-retry-count:99 --auto-select:true --check-segments-count:false --no-log:true -mt:true --mp4-real-time-decryption:true --ad-keyword %user_ad_keyword% --ui-language:zh-CN
 
-::设置m3u8下载命令
+::设置video下载命令
 ::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
-set m3u8_download=N_m3u8DL-RE "%link%" %m3u8_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+set video_download=N_m3u8DL-RE "%link%" %video_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 goto :eof
 
 :setting_live_record_params
@@ -164,9 +164,9 @@ goto :eof
 ::-ds, --drop-subtitle <OPTIONS>           通过正则表达式去除符合要求的字幕流.
 
 ::---------------输出部分---------------
-:m3u8_download_print
+:video_download_print
 cls
-echo.下载命令：%m3u8_download%
+echo.下载命令：%video_download%
 ::空一行
 echo.
 goto :eof
@@ -180,9 +180,9 @@ goto :eof
 
 
 ::下载命令
-:m3u8_downloading
+:video_downloading
 ::开始下载
-%m3u8_download%
+%video_download%
 goto :eof
 
 :live_recording
