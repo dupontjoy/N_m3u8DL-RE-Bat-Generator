@@ -1,12 +1,15 @@
-::2023.07.30
-::记得保存为ASNI编码
+::2023.08.15
+::推荐保存为ASNI编码
 
 @echo off & setlocal enabledelayedexpansion
 
 ::开始
 Title N_m3u8DL-RE：跨平台的DASH/HLS/MSS下载工具 by nilaoda
 
-cd /d %~dp0
+::界面大小，Cols为宽，Lines为高
+COLOR 0a
+
+pushd %~dp0
 
 ::菜单部分
 :menu
@@ -14,13 +17,13 @@ cls
 ECHO.
 ECHO  选项
 echo.                   
-ECHO. **********************************************************
+ECHO. *******************************************************************************************
 echo.
 ECHO  1、下载m3u8视频
 echo.
 ECHO  2、直播录制
 echo.
-ECHO. **********************************************************
+ECHO. *******************************************************************************************
 echo.
 CHOICE /C 12 /N >NUL 2>NUL
 cls
@@ -106,24 +109,30 @@ set TempDir=N_m3u8DL_Temp
 set SaveDir=D:\Download\
 
 ::设置ffmpeg.exe路径
-set ffmpeg=..\..\..\MedLexo\bin\ffmpeg.exe
+set ffmpeg=..\..\..\MPV\ffmpeg.exe
 
 goto :eof
 
 :setting_ad_keyword
 ::设置广告关键词
-set user_ad_keyword="o\d{3,4}.ts|/ads/|hesads.akamaized.net"
+set user_ad_keyword="o\d{3,4}.ts|/ads?/|hesads.akamaized.net"
 goto :eof
 
 :setting_m3u8_params
 ::设置m3u8下载参数
-set m3u8_params=--download-retry-count:9 --auto-select:true --check-segments-count:false --no-log:true --append-url-params:true --ad-keyword %user_ad_keyword% -mt:true --mp4-real-time-decryption:true --ui-language:zh-CN
+set m3u8_params=--download-retry-count:99 --auto-select:true --check-segments-count:false --no-log:true --ad-keyword %user_ad_keyword% --ui-language:zh-CN
+
+::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
+set m3u8_download=N_m3u8DL-RE "%link%" %m3u8_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 goto :eof
 
 :setting_live_record_params
 ::设置直播录制参数
 set live_record_params=--no-log:true --append-url-params:true -mt:true --mp4-real-time-decryption:true --ui-language:zh-CN -sv best -sa best --live-pipe-mux:true --live-keep-segments:false --live-fix-vtt-by-audio:true %live_record_limit% -M format=mp4:bin_path="%ffmpeg%"
+
+set live_record=N_m3u8DL-RE "%link%" %live_record_params% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 goto :eof
+
 
 ::---------------参数说明---------------
 ::--tmp-dir <tmp-dir>                      设置临时文件存储目录
@@ -155,14 +164,14 @@ goto :eof
 ::---------------输出部分---------------
 :m3u8_download_print
 cls
-echo.下载命令：N_m3u8DL-RE "%link%" %m3u8_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+echo.下载命令：%m3u8_download%
 ::空一行
 echo.
 goto :eof
 
 :live_record_print
 cls
-echo.下载命令：N_m3u8DL-RE "%link%" %live_record_params% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+echo.下载命令：%live_record%
 ::空一行
 echo.
 goto :eof
@@ -170,18 +179,19 @@ goto :eof
 
 ::下载命令
 :m3u8_downloading
-::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
-N_m3u8DL-RE "%link%" %m3u8_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+::开始下载
+%m3u8_download%
 goto :eof
 
 :live_recording
-N_m3u8DL-RE "%link%" %live_record_params% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+::开始下载
+%live_record%
 goto :eof
 
 ::下载完成暂停一段时间关闭窗口，防止运行报错时直接关闭窗口。
 :when_done
 timeout /t 10 /nobreak
-exit
+
 goto :eof
 
 
