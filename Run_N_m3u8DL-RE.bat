@@ -11,7 +11,7 @@ COLOR 0a
 
 pushd %~dp0
 
-::菜单部分
+::---------------菜单部分---------------
 :menu
 cls
 ECHO.
@@ -179,17 +179,19 @@ echo.
 goto :eof
 
 
-::下载命令
+::---------------运行部分---------------
 :video_downloading
 ::开始下载
 %video_download%
 goto :eof
 
 :live_recording
-::开始下载
+::开始录制
 %live_record%
 goto :eof
 
+
+::---------------结束部分---------------
 ::下载完成暂停一段时间关闭窗口，防止运行报错时直接关闭窗口。
 :when_done
 timeout /t 10 /nobreak
