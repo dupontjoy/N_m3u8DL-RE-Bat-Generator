@@ -6,7 +6,7 @@
 ::开始
 Title N_m3u8DL-RE：跨平台的DASH/HLS/MSS下载工具 by nilaoda
 
-::界面大小，Cols为宽，Lines为高
+::界面颜色大小，Cols为宽，Lines为高
 COLOR 0a
 
 pushd %~dp0
@@ -122,6 +122,7 @@ goto :eof
 ::设置m3u8下载参数
 set m3u8_params=--download-retry-count:99 --auto-select:true --check-segments-count:false --no-log:true --ad-keyword %user_ad_keyword% --ui-language:zh-CN
 
+::设置m3u8下载命令
 ::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
 set m3u8_download=N_m3u8DL-RE "%link%" %m3u8_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 goto :eof
@@ -130,6 +131,7 @@ goto :eof
 ::设置直播录制参数
 set live_record_params=--no-log:true --append-url-params:true -mt:true --mp4-real-time-decryption:true --ui-language:zh-CN -sv best -sa best --live-pipe-mux:true --live-keep-segments:false --live-fix-vtt-by-audio:true %live_record_limit% -M format=mp4:bin_path="%ffmpeg%"
 
+::设置直播录制命令
 set live_record=N_m3u8DL-RE "%link%" %live_record_params% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
 goto :eof
 
