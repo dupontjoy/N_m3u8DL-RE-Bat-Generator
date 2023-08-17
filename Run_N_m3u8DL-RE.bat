@@ -1,4 +1,4 @@
-::2023.08.15
+::2023.08.17
 ::推荐保存为ASNI编码
 
 @echo off & setlocal enabledelayedexpansion
@@ -37,16 +37,14 @@ IF "%ERRORLEVEL%"=="2" (goto live_record)
 cls
 call :common_input
 call :setting_video_download
-call :video_download_print
 call :video_downloading
 call :when_done
 goto :eof
 
 :live_record
 call :common_input
-call :live_record_input
+call :record_limit_input
 call :setting_live_record
-call :live_record_print
 call :live_recording
 call :when_done
 goto :eof
@@ -74,8 +72,8 @@ if "!filename!"=="" (
 ::子标签中加上goto :eof命令即可退出子标签，不继续执行它下面的其它命令
 goto :eof
 
-:live_record_input
-:set_record_limit
+
+:record_limit_input
 set "record_limit="
 set /p "record_limit=请输入录制时长限制(格式：HH:mm:ss, 可为空): "
 if "!record_limit!"=="" (
@@ -85,8 +83,8 @@ if "!record_limit!"=="" (
     )
 goto :eof
 
+
 :custom_range_input
-:set_custom_range
 set "custom_range="
 set /p "custom_range=请输入分片范围(格式：0-10或10-或-99或05:00-20:00, 可为空): "
 if "!custom_range!"=="" (
@@ -110,29 +108,19 @@ set live_record=N_m3u8DL-RE @.\Config\config_live_record.conf %live_record_limit
 goto :eof
 
 
-::---------------输出部分---------------
-:video_download_print
-cls
-echo.下载命令：%video_download%
-::空一行
-echo.
-goto :eof
-
-:live_record_print
-cls
-echo.下载命令：%live_record%
-::空一行
-echo.
-goto :eof
-
-
 ::---------------运行部分---------------
 :video_downloading
+::输出运行命令
+cls
+echo.运行命令：%video_download%
 ::开始下载
 %video_download%
 goto :eof
 
 :live_recording
+::输出运行命令
+cls
+echo.运行命令：%live_record%
 ::开始录制
 %live_record%
 goto :eof
@@ -142,7 +130,4 @@ goto :eof
 ::下载完成暂停一段时间关闭窗口，防止运行报错时直接关闭窗口。
 :when_done
 timeout /t 10 /nobreak
-
 goto :eof
-
-
