@@ -101,12 +101,12 @@ goto :eof
 :setting_video_download
 ::设置video下载命令
 ::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
-set video_download=N_m3u8DL-RE @config_video_download.json "%link%" --save-name "%filename%"
+set video_download=N_m3u8DL-RE @config_video_download.conf "%link%" --save-name "%filename%"
 goto :eof
 
 :setting_live_record
 ::设置直播录制命令
-set live_record=N_m3u8DL-RE @config_live_record.json %live_record_limit% "%link%" --save-name "%filename%"
+set live_record=N_m3u8DL-RE @config_live_record.conf %live_record_limit% "%link%" --save-name "%filename%"
 goto :eof
 
 
