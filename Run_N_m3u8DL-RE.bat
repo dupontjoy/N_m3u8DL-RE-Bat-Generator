@@ -7,7 +7,7 @@
 Title N_m3u8DL-RE：跨平台的DASH/HLS/MSS下载工具 by nilaoda
 
 ::界面颜色大小，Cols为宽，Lines为高
-COLOR 0a
+color 0a
 
 pushd %~dp0
 
@@ -36,9 +36,7 @@ IF "%ERRORLEVEL%"=="2" (goto live_record)
 :video_download
 cls
 call :common_input
-call :setting_path
-call :setting_ad_keyword
-call :setting_video_params
+call :setting_video_download
 call :video_download_print
 call :video_downloading
 call :when_done
@@ -47,8 +45,7 @@ goto :eof
 :live_record
 call :common_input
 call :live_record_input
-call :setting_path
-call :setting_live_record_params
+call :setting_live_record
 call :live_record_print
 call :live_recording
 call :when_done
@@ -101,67 +98,17 @@ goto :eof
 
 
 ::---------------设置部分---------------
-:setting_path
-::设置临时文件存储目录
-set TempDir=cache
-
-::设置输出目录
-set SaveDir=D:\Download\
-
-::设置ffmpeg.exe路径
-set ffmpeg=..\..\..\MPV\ffmpeg.exe
-
-goto :eof
-
-:setting_ad_keyword
-::设置广告关键词
-set user_ad_keyword="o\d{3,4}.ts|/ads?/|hesads.akamaized.net"
-goto :eof
-
-:setting_video_params
-::设置video下载参数
-set video_params=--download-retry-count:99 --auto-select:true --check-segments-count:false --no-log:true -mt:true --mp4-real-time-decryption:true --ad-keyword %user_ad_keyword% --ui-language:zh-CN
-
+:setting_video_download
 ::设置video下载命令
 ::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
-set video_download=N_m3u8DL-RE "%link%" %video_params% --ffmpeg-binary-path %ffmpeg% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+set video_download=N_m3u8DL-RE @config_video_download.json "%link%" --save-name "%filename%"
 goto :eof
 
-:setting_live_record_params
-::设置直播录制参数
-set live_record_params=--no-log:true --append-url-params:true -mt:true --mp4-real-time-decryption:true --ui-language:zh-CN -sv best -sa best --live-pipe-mux:true --live-keep-segments:false --live-fix-vtt-by-audio:true %live_record_limit% -M format=mp4:bin_path="%ffmpeg%"
-
+:setting_live_record
 ::设置直播录制命令
-set live_record=N_m3u8DL-RE "%link%" %live_record_params% --tmp-dir %TempDir% --save-dir %SaveDir% --save-name "%filename%"
+set live_record=N_m3u8DL-RE @config_live_record.json %live_record_limit% "%link%" --save-name "%filename%"
 goto :eof
 
-
-::---------------参数说明---------------
-::--tmp-dir <tmp-dir>                      设置临时文件存储目录
-::--save-name <save-name>                  设置保存文件名
-::--save-dir <save-dir>                    设置输出目录
-::--download-retry-count <number>          每个分片下载异常时的重试次数 [default: 3]
-::--auto-select                            自动选择所有类型的最佳轨道 [default: False]
-::--ad-keyword                             选项过滤广告URL
-::--check-segments-count                   检测实际下载的分片数量和预期数量是否匹配 [default: True]
-::--no-log                                 关闭日志文件输出 [default: False]
-::--append-url-params                      将输入Url的Params添加至分片, 对某些网站很有用 [default: False]
-::-mt, --concurrent-download               并发下载已选择的音频、视频和字幕 [default: False]
-::--mp4-real-time-decryption               实时解密MP4分片 [default: False]
-::-M, --mux-after-done <OPTIONS>           所有工作完成时尝试混流分离的音视频
-::--custom-range <RANGE>                   仅下载部分分片. 输入 "--morehelp custom-range" 以查看详细信息
-::--ffmpeg-binary-path <PATH>              ffmpeg可执行程序全路径, 例如 C:\Tools\ffmpeg.exe
-::--ui-language <en-US|zh-CN|zh-TW>        设置UI语言
-::--live-keep-segments                     录制直播并开启实时合并时依然保留分片 [default: True]
-::--live-pipe-mux                          录制直播并开启实时合并时通过管道+ffmpeg实时混流到TS文件 [default: False]
-::--live-fix-vtt-by-audio                  通过读取音频文件的起始时间修正VTT字幕 [default: False]
-::--live-record-limit <HH:mm:ss>           录制直播时的录制时长限制
-::-sv, --select-video <OPTIONS>            通过正则表达式选择符合要求的视频流. 输入 "--morehelp select-video" 以查看详细信息
-::-sa, --select-audio <OPTIONS>            通过正则表达式选择符合要求的音频流. 输入 "--morehelp select-audio" 以查看详细信息
-::-ss, --select-subtitle <OPTIONS>         通过正则表达式选择符合要求的字幕流. 输入 "--morehelp select-subtitle" 以查看详细信息
-::-dv, --drop-video <OPTIONS>              通过正则表达式去除符合要求的视频流.
-::-da, --drop-audio <OPTIONS>              通过正则表达式去除符合要求的音频流.
-::-ds, --drop-subtitle <OPTIONS>           通过正则表达式去除符合要求的字幕流.
 
 ::---------------输出部分---------------
 :video_download_print
