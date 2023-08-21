@@ -42,8 +42,7 @@ call :when_done
 goto :eof
 
 :live_record
-call :common_input
-call :record_limit_input
+call :common_input & call :record_limit_input
 call :setting_live_record
 call :live_recording
 call :when_done
@@ -99,12 +98,12 @@ goto :eof
 :setting_video_download
 ::设置video下载命令
 ::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
-set video_download=N_m3u8DL-RE @.\Config\config_video_download.conf "%link%" --save-name "%filename%"
+set video_download=N_m3u8DL-RE @config_video_download.conf "%link%" --save-name "%filename%"
 goto :eof
 
 :setting_live_record
 ::设置直播录制命令
-set live_record=N_m3u8DL-RE @.\Config\config_live_record.conf %live_record_limit% "%link%" --save-name "%filename%"
+set live_record=N_m3u8DL-RE @config_live_record.conf %live_record_limit% "%link%" --save-name "%filename%"
 goto :eof
 
 
@@ -113,6 +112,7 @@ goto :eof
 ::输出运行命令
 cls
 echo.运行命令：%video_download%
+echo.
 ::开始下载
 %video_download%
 goto :eof
@@ -121,6 +121,7 @@ goto :eof
 ::输出运行命令
 cls
 echo.运行命令：%live_record%
+echo.
 ::开始录制
 %live_record%
 goto :eof
