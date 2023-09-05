@@ -8,6 +8,7 @@ Title N_m3u8DL-RE：跨平台的DASH/HLS/MSS下载工具 by nilaoda
 
 ::界面颜色大小，Cols为宽，Lines为高
 color 0a
+cls
 
 pushd %~dp0
 
@@ -98,12 +99,12 @@ goto :eof
 :setting_video_download
 ::设置video下载命令
 ::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
-set video_download=N_m3u8DL-RE @config_video_download.conf "%link%" --save-name "%filename%"
+set video_download=N_m3u8DL-RE "%link%" --save-name "%filename%" @config_video_download.conf
 goto :eof
 
 :setting_live_record
 ::设置直播录制命令
-set live_record=N_m3u8DL-RE @config_live_record.conf %live_record_limit% "%link%" --save-name "%filename%"
+set live_record=N_m3u8DL-RE "%link%" --save-name "%filename%" %live_record_limit% @config_live_record.conf
 goto :eof
 
 
@@ -130,5 +131,5 @@ goto :eof
 ::---------------结束部分---------------
 ::下载完成暂停一段时间关闭窗口，防止运行报错时直接关闭窗口。
 :when_done
-timeout /t 10 /nobreak
+timeout /t 5 /nobreak
 goto :eof
