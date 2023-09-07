@@ -25,5 +25,5 @@
 ## ffmpeg
 
 ffmpeg下载:
-  https://github.com/BtbN/FFmpeg-Builds/releases
-  https://github.com/shinchiro/mpv-winbuild-cmake
+ - https://github.com/BtbN/FFmpeg-Builds/releases
+ - https://github.com/shinchiro/mpv-winbuild-cmake
