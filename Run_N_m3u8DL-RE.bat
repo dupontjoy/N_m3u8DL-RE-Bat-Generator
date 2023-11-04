@@ -1,4 +1,4 @@
-::2023.08.17
+::2023.11.04
 ::推荐保存为ASNI编码
 
 @echo off & setlocal enabledelayedexpansion
@@ -99,12 +99,12 @@ goto :eof
 :setting_video_download
 ::设置video下载命令
 ::将%filename%加引号，防止文件名带有某些符号导致路径识別失败
-set video_download=N_m3u8DL-RE "%link%" --save-name "%filename%" @config_video_download.conf
+set video_download=N_m3u8DL-RE "%link%" --save-name "%filename%" @config_video_download.conf @config_dir.conf
 goto :eof
 
 :setting_live_record
 ::设置直播录制命令
-set live_record=N_m3u8DL-RE "%link%" --save-name "%filename%" %live_record_limit% @config_live_record.conf
+set live_record=N_m3u8DL-RE "%link%" --save-name "%filename%" %live_record_limit% @config_live_record.conf @config_dir.conf
 goto :eof
 
 
