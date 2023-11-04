@@ -14,7 +14,6 @@
 ## 主程序
 [N_m3u8DL-RE nilaoda](https://github.com/nilaoda/N_m3u8DL-RE)
 
-[N_m3u8DL-RE fork](https://github.com/dupontjoy/N_m3u8DL-RE/actions) fork后打包，跟进最新程序版本
 
 ## 运行截图
 <img width="650" src="img/1.png">
