@@ -1,4 +1,4 @@
-::2023.11.04
+::2023.12.09
 ::推荐保存为ASNI编码
 
 @echo off & setlocal enabledelayedexpansion
@@ -14,21 +14,8 @@ pushd %~dp0
 
 ::---------------菜单部分---------------
 :menu
-cls
-ECHO.
-ECHO  选项
-echo.                   
-ECHO. *******************************************************************************************
-echo.
-ECHO  1、下载视频
-echo.
-ECHO  2、直播录制
-echo.
-ECHO. *******************************************************************************************
-echo.
-CHOICE /C 12 /N >NUL 2>NUL
-cls
-
+echo 请选择功能，默认使用1、下载视频。
+echo.&choice /C 12 /T 2 /D 1 /M "1、下载视频 2、直播录制"
 IF "%ERRORLEVEL%"=="1" (goto video_download)
 IF "%ERRORLEVEL%"=="2" (goto live_record)
 
@@ -36,6 +23,8 @@ IF "%ERRORLEVEL%"=="2" (goto live_record)
 ::功能选项
 :video_download
 cls
+echo.&echo 下载视频...
+echo.
 call :common_input
 call :setting_video_download
 call :video_downloading
@@ -43,6 +32,9 @@ call :when_done
 goto :eof
 
 :live_record
+cls
+echo.&echo 直播录制...
+echo.
 call :common_input & call :record_limit_input
 call :setting_live_record
 call :live_recording
@@ -131,5 +123,5 @@ goto :eof
 ::---------------结束部分---------------
 ::下载完成暂停一段时间关闭窗口，防止运行报错时直接关闭窗口，来不及看错误信息。
 :when_done
-timeout /t 5 /nobreak
+timeout /t 3 /nobreak
 goto :eof
