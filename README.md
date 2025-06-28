@@ -21,7 +21,7 @@
 
 ## 广告過滤
 
-很多广告片段url比正常片段长，通過这个特征来检测，检测到广告片段后，自行添加广告正则。
+很多广告片段url比正常片段长，通過这个特征来检测，检测到广告片段后，自動生成广告正则，用户确实是否应用。
 
 ## 其它广告过滤关键词
 [m3u8_downloader/ignore_url_list.txt](https://github.com/leavjenn/leavjenn.github.io/blob/master/m3u8_downloader/ignore_url_list.txt)

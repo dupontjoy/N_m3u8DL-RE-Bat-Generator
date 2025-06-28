@@ -73,9 +73,13 @@ goto :eof
 
 :analyze_ad_segments
 set "first_ts_length=0" & set "ad_detected=0" & set "line_count=0"
+set "ad_count=0"
+set "ad_segments="
+set "ad_regex="
+
 for /f "delims=" %%a in ('type temp_analyze.m3u8') do (
     set /a "line_count+=1"
-    if !line_count! leq 500 echo %%a|find ".ts">nul && (
+    echo %%a|find ".ts">nul && (
         if !first_ts_length! equ 0 (
             set "first_line=%%a"
             call :get_length "%%a"
@@ -83,16 +87,49 @@ for /f "delims=" %%a in ('type temp_analyze.m3u8') do (
         ) else (
             call :get_length "%%a"
             if !length! gtr !first_ts_length! (
+                set /a "ad_count+=1"
                 set "ad_detected=1"
+                set "ad_segment=%%a"
+                set "ad_segment=!ad_segment:.ts=!"
+                set "ad_segment=!ad_segment:/=\!"
+                set "ad_segment=!ad_segment:\=/!"
+                set "ad_segments=!ad_segments! !ad_segment!"
                 echo 检测到可能的广告片段: %%a
                 echo 长度: !length! (首个.ts长度: !first_ts_length!)
             )
         )
     )
 )
+
 if !ad_detected! equ 1 (
-    echo. & echo 检测到广告片段特征，建议设置广告正则匹配
-) else echo 未检测到广告片段特征
+    echo. 
+    echo 共检测到 !ad_count! 个广告片段
+    echo 正在生成广告正则表达式...
+    
+    :: 生成更通用的广告正则表达式
+    set "ad_regex="
+    for %%a in (!ad_segments!) do (
+        if "!ad_regex!"=="" (
+            set "ad_regex=.*%%a.*"
+        ) else (
+            set "ad_regex=!ad_regex!|.*%%a.*"
+        )
+    )
+    echo.
+    echo 生成的广告正则: !ad_regex!
+    echo.
+    choice /C YN /M "是否应用此广告正则表达式(Y/N)?"
+    if errorlevel 2 (
+        set "custom_ad_keyword="
+        echo 已跳过广告正则应用
+    ) else (
+        set "custom_ad_keyword=--ad-keyword "!ad_regex!""
+        echo 已应用广告正则表达式
+    )
+) else (
+    echo 未检测到广告片段特征
+    set "custom_ad_keyword="
+)
 del temp_analyze.m3u8
 goto :eof
 
@@ -103,11 +140,7 @@ if not "!line:~%length%,1!"=="" (set /a length+=1 & goto length_loop)
 goto :eof
 
 :custom_ad_keyword
-if !ad_detected! equ 1 (
-    set "custom_ad_keyword="
-    set /p "custom_ad_keyword=请输入广告匹配正则（可为空）: "
-    if not "!custom_ad_keyword!"=="" set "custom_ad_keyword=--ad-keyword !custom_ad_keyword!"
-) else set "custom_ad_keyword="
+:: 这里不再需要额外处理，已在analyze_ad_segments中完成
 goto :eof
 
 :record_limit_input
