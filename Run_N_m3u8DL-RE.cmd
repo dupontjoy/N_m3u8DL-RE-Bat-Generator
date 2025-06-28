@@ -76,6 +76,7 @@ set "first_ts_length=0" & set "ad_detected=0" & set "line_count=0"
 set "ad_count=0"
 set "ad_segments="
 set "ad_regex="
+set "first_ts_id="
 
 for /f "delims=" %%a in ('type temp_analyze.m3u8') do (
     set /a "line_count+=1"
@@ -84,6 +85,16 @@ for /f "delims=" %%a in ('type temp_analyze.m3u8') do (
             set "first_line=%%a"
             call :get_length "%%a"
             set "first_ts_length=!length!"
+            :: 提取首个.ts片段的ID
+            set "first_ts_id=%%a"
+            set "first_ts_id=!first_ts_id:.ts=!"
+            set "first_ts_id=!first_ts_id:/=\!"
+            set "first_ts_id=!first_ts_id:\=/!"
+            set "first_ts_id=!first_ts_id:*/=!"
+            set "first_ts_id=!first_ts_id:*/=!"
+            echo.
+            echo 首个.ts片段ID: !first_ts_id!
+            echo 长度: !first_ts_length!
         ) else (
             call :get_length "%%a"
             if !length! gtr !first_ts_length! (
