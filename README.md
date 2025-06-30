@@ -23,7 +23,7 @@
 
 ## 广告過滤
 
-很多广告片段url比正常片段长，通過这个特征来检测，检测到广告片段后，自動生成广告正则，用户确认是否应用。
+很多广告分片url与正常片段长度不同，通過这个特征来检测是否是广告。由于广告片段的id有可能无规律，所以全部分片都检测一遍，将所有url与正常片段长度不同的分片列出来。自動生成广告正则，用户确认是否应用。
 
 ## 其它广告过滤关键词
 [m3u8_downloader/ignore_url_list.txt](https://github.com/leavjenn/leavjenn.github.io/blob/master/m3u8_downloader/ignore_url_list.txt)
