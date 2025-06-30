@@ -27,8 +27,10 @@ goto menu
 cls & echo.& echo 下载视频 & echo.
 call :common_input
 call :check_mixed_m3u8
-call :analyze_ad_segments
+call :analyze_ad_segments_from_config
+if "!ad_detected!"=="0" call :analyze_ad_segments
 set "video_download=N_m3u8DL-RE @config_common.conf @config_ad_keyword.conf !custom_ad_keyword! --save-name "!filename!" "!link!""
+echo.
 echo.运行命令：!video_download! & echo.
 !video_download!
 goto :end
@@ -38,6 +40,7 @@ cls & echo.& echo 直播录制 & echo.
 call :common_input
 call :record_limit_input
 set "live_record=N_m3u8DL-RE @config_common.conf @config_live_record.conf !live_record_limit! --save-name "!filename!" "!link!""
+echo.
 echo.运行命令：!live_record! & echo.
 !live_record!
 goto :end
@@ -71,6 +74,29 @@ del temp.m3u8
 goto :eof
 
 :: 改进后的广告片段检测函数
+:analyze_ad_segments_from_config
+set "ad_detected=0"
+set "custom_ad_keyword="
+
+:: 读取 config_ad_keyword.conf 文件中的所有正则表达式
+echo.
+if exist config_ad_keyword.conf (
+    for /f "tokens=2 delims= " %%a in (config_ad_keyword.conf) do (
+        set "regex_pattern=%%a"
+        echo 正在使用正则表达式: !regex_pattern!
+        for /f "delims=" %%b in ('type temp_analyze.m3u8 ^| findstr /r /i /c:"!regex_pattern!"') do (
+            set "ad_detected=1"
+            echo. 使用正则表达式: !regex_pattern! 检测到广告片段: %%b
+            del temp_analyze.m3u8
+            goto :eof
+        )
+    )
+)
+
+echo 没有匹配到广告片段
+goto :eof
+
+:: 原来的广告片段检测函数
 :analyze_ad_segments
 set "first_ts_length=0" & set "ad_detected=0"
 set "ad_count=0"
@@ -80,14 +106,15 @@ set "first_ts_id="
 set "total_segments=0"
 
 :: 首先计算总片段数
+echo.
+echo 正在使用對比分片ID长度方法检测广告...
 for /f %%a in ('type temp_analyze.m3u8 ^| find /c ".ts"') do set "total_segments=%%a"
 echo 总片段数: !total_segments!
 
 :: 使用更高效的方式处理m3u8内容
 for /f "delims=" %%a in ('type temp_analyze.m3u8 ^| find ".ts"') do (
-    :: 提取片段ID
-    for /f "tokens=1 delims=?" %%b in ("%%a") do set "segment_id=%%~nb"
-    set "segment_id=!segment_id:.ts=!"
+    :: 提取片段ID（保留.ts后缀）
+    for /f "tokens=1 delims=?" %%b in ("%%a") do set "segment_id=%%~nxb"
     set "segment_id=!segment_id:*/=!"
 
     call :get_length_fast "%%a"
@@ -148,8 +175,8 @@ goto :eof
 set "line=%~1"
 set "length=0"
 :length_loop_fast
-if not "!line:~%length%,1!"=="" (set /a length+=1 & goto length_loop_fast)
-goto :eof
+if not "!line:~%length%,1!"=="" (set /a length+=1 & goto :length_loop_fast)
+exit /b
 
 :record_limit_input
 set "record_limit="
