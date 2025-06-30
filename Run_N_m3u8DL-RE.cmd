@@ -116,13 +116,17 @@ for /f "delims=" %%a in ('type temp_analyze.m3u8 ^| find ".ts"') do (
     :: 提取片段ID（保留.ts后缀）
     for /f "tokens=1 delims=?" %%b in ("%%a") do set "segment_id=%%~nxb"
     set "segment_id=!segment_id:*/=!"
+    set "segment_id=!segment_id:.ts=!"
 
-    call :get_length_fast "%%a"
+    :: 计算片段ID的长度
+    call :get_length_fast "!segment_id!"
+    set "length=!length!"
+
     if !first_ts_length! equ 0 (
         :: 设置首个.ts片段的长度作为基准
         set "first_ts_length=!length!"
         echo.
-        echo 首个.ts片段ID: !segment_id!
+        echo 首个.ts片段ID: !segment_id!.ts
         echo 长度: !first_ts_length!
     ) else (
         if !length! neq !first_ts_length! (
@@ -131,7 +135,7 @@ for /f "delims=" %%a in ('type temp_analyze.m3u8 ^| find ".ts"') do (
             
             :: 收集广告片段
             set "ad_segments=!ad_segments! !segment_id!"
-            echo 检测到广告片段 [!ad_count!/!total_segments!]: %%a
+            echo 检测到广告片段 [!ad_count!/!total_segments!]: !segment_id!.ts
             echo 长度: !length! (首个.ts长度: !first_ts_length!)
         )
     )
