@@ -53,7 +53,7 @@ if "!link!"=="" (echo 错误：输入不能为空！ & goto :set_link)
 
 :set_key
 set "key="
-set /p "key=请输入 指定HLS解密KEY（HEX或Base64, 可为空）: "
+set /p "key=请输入 HLS解密KEY（HEX或Base64, 可为空）: "
 if "!key!"=="" (set "custom-hls-key=") else set "custom-hls-key=--custom-hls-key !key!"
 
 :set_filename 
@@ -115,6 +115,13 @@ echo.
 echo 正在使用 對比分片ID长度方法 检测广告...
 for /f %%a in ('type temp_analyze.m3u8 ^| find /c ".ts"') do set "total_segments=%%a"
 echo 总片段数: !total_segments!
+
+:: 如果总片段数为0，跳过广告检测
+if !total_segments! equ 0 (
+    echo 没有找到.ts片段，跳过广告检测
+    del temp_analyze.m3u8
+    goto :eof
+)
 
 :: 使用更高效的方式处理m3u8内容
 for /f "delims=" %%a in ('type temp_analyze.m3u8 ^| find ".ts"') do (
